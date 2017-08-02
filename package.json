@@ -1,0 +1,14 @@
+{
+  "name": "talbotextreme",
+  "version": "1.0.0",
+  "description": "Talutha's Twitch Bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Talutha",
+  "license": "ISC",
+  "dependencies": {
+    "tmi.js": "^1.2.1"
+  }
+}
