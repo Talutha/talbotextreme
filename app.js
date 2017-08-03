@@ -54,6 +54,9 @@ massive(connectionInfo).then(db => {
       // Remove '!' from message
       message = message.substr(1);
 
+      // Split message into parts for ease of processing
+      message = message.split(' ');
+
       COMMANDS.processCommand(db, client, channel, userstate, message);
     };
   })
