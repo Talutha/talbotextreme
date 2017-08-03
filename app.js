@@ -1,6 +1,9 @@
+'use strict';
+
 const tmi = require('tmi.js');
 const massive = require('massive');
 const config = require('./config.json');
+const COMMANDS = require('./lib/commands.js');
 
 // db connection info(psql)
 const connectionInfo = {
@@ -48,19 +51,8 @@ massive(connectionInfo).then(db => {
     if (message.charAt(0) === '!') {
       message = message.substr(1);
 
-      if (message === 'howdy') {
-        console.log(userstate);
-        client.say(channel, 'Howdy there @' + userstate['display-name'] + '!');
-      } else {
-        db.commands.find({
-          command_name: message
-        }).then(result => {
-          client.say(channel, result[0].command_output);
-        }).catch(err => {
-          console.log( 'I am sorry commander, but I could not find the command !' + message );
-        })
-      };
-    }
+      COMMANDS.processCommand(db, client, channel, userstate, message);
+    };
   })
 
 });
