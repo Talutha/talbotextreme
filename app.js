@@ -44,11 +44,14 @@ massive(connectionInfo).then(db => {
   });
   */
 
+  // Process every chat message sent
   client.on('chat', function (channel, userstate, message, self) {
     // Don't listen to my own messages...
     if (self) return;
 
+    // If message starts with '!' process it as a command
     if (message.charAt(0) === '!') {
+      // Remove '!' from message
       message = message.substr(1);
 
       COMMANDS.processCommand(db, client, channel, userstate, message);
