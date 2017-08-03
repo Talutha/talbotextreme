@@ -1,27 +1,20 @@
 const tmi = require('tmi.js');
 const massive = require('massive');
+const config = require('./config.json');
 
 // db connection info(psql)
 const connectionInfo = {
   host: 'localhost',
   port: 5432,
-  database: 'test_commands_db',
-  user: 'test_commands_db',
-  password: 'testing',
+  database: config["Database"],
+  user: config["DB User"],
+  password: config["DB Password"],
   ssl: false,
   poolSize: 10
 };
 
 // connect to db
 massive(connectionInfo).then(db => {
-
-  db.commands.find({
-    command_name: 'testing'
-  }).then(result => {
-    console.log(result[0].command_output);
-  });
-
-
 
   var options = {
     options: {
@@ -31,8 +24,8 @@ massive(connectionInfo).then(db => {
       reconnect: true
     },
     identity: {
-      username: "TalBotExtreme",
-      password: "changeme"
+      username: config["Twitch Username"],
+      password: config["Twitch Oauth"]
     },
     channels: ['#talbotextreme']
   };
