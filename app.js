@@ -51,6 +51,7 @@ massive(connectionInfo).then(db => {
 
     // If message starts with '!' process it as a command
     if (message.charAt(0) === '!') {
+      console.log(userstate);
       // Remove '!' from message
       message = message.substr(1);
 
