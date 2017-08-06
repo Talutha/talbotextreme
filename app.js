@@ -51,13 +51,6 @@ massive(connectionInfo).then(db => {
 
     // If message starts with '!' process it as a command
     if (message.charAt(0) === '!') {
-      console.log(userstate);
-      // Remove '!' from message
-      message = message.substr(1);
-
-      // Split message into parts for ease of processing
-      message = message.split(' ');
-
       COMMANDS.processCommand(db, client, channel, userstate, message);
     };
   })
