@@ -4,6 +4,7 @@ const tmi = require('tmi.js');
 const massive = require('massive');
 const config = require('./config.json');
 const COMMANDS = require('./lib/commands.js');
+const USERS = require('./lib/users.js');
 
 // db connection info(psql)
 const connectionInfo = {
@@ -43,7 +44,7 @@ massive(connectionInfo).then(db => {
     client.say('#talbotextreme', 'Hello world, I am back...')
   });
   */
-
+  USERS.getUserList();
   // Process every chat message sent
   client.on('chat', function (channel, userstate, message, self) {
     // Don't listen to my own messages...
