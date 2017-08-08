@@ -44,7 +44,7 @@ massive(connectionInfo).then(db => {
     client.say('#talbotextreme', 'Hello world, I am back...')
   });
   */
-  USERS.getUserList();
+  USERS.getUserList(db);
   // Process every chat message sent
   client.on('chat', function (channel, userstate, message, self) {
     // Don't listen to my own messages...
