@@ -20,6 +20,20 @@ const connectionInfo = {
 // connect to db
 massive(connectionInfo).then(db => {
 
+  // Automatically create DB Tables if they don't exist
+  console.log("Ensuring Correct Tables Exist...");
+  db.tableCreation.createCommandsTable()
+    .then( result => {
+      console.log("Commands Table Verified.");
+      db.tableCreation.createUserTable()
+        .then( result => {
+          console.log("User Table Verified.");
+          db.reload().then(newDB => {
+            db = newDB;
+          })
+        })
+    });
+
   var options = {
     options: {
       debug: true
