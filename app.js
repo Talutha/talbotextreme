@@ -5,6 +5,7 @@ const massive = require('massive');
 const config = require('./config.json');
 const COMMANDS = require('./lib/commands.js');
 const USERS = require('./lib/users.js');
+const CHANNELS = require('./lib/channels.js');
 
 // db connection info(psql)
 const connectionInfo = {
@@ -58,12 +59,17 @@ massive(connectionInfo).then(db => {
   // Connect the client to the server..
   client.connect();
 
+  client.on("connected", function (address, port) {
+    CHANNELS.joinChannels(db, client);
+    USERS.getUserList(db);
+  })
+
   /*
   client.on('connected', function (address, port) {
     client.say('#talbotextreme', 'Hello world, I am back...')
   });
   */
-  USERS.getUserList(db);
+
   // Process every chat message sent
   client.on('chat', function (channel, userstate, message, self) {
     // Don't listen to my own messages...
