@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS channel_settings (
     broadcaster_id bigint,
     points_command VARCHAR,
     points_name VARCHAR,
-    points_activated BOOLEAN
+    points_activated BOOLEAN,
+    joined BOOLEAN
 );
