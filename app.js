@@ -28,8 +28,13 @@ massive(connectionInfo).then(db => {
       db.tableCreation.createUserTable()
         .then( result => {
           console.log("User Table Verified.");
-          db.reload().then(newDB => {
-            db = newDB;
+          db.tableCreation.createChannelSettings()
+          .then( result => {
+            console.log("Channel Settings Table Verified.");
+            // makes sure 'db' is able to see new columns added from new tables
+            db.reload().then(newDB => {
+              db = newDB;
+            })
           })
         })
     });
