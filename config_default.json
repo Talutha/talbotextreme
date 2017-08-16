@@ -2,6 +2,9 @@
   "Twitch Username": "",
   "Twitch Oauth": "",
   "Twitch Client ID": "",
+  "Twitch Channel": "",
+  "Discord Token": "",
+  "Discord Guild ID": "",
   "DB User": "",
   "DB Password": "",
   "Database" : ""
