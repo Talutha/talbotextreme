@@ -1,11 +1,13 @@
 'use strict';
 
 const tmi = require('tmi.js');
+const discord = require('discord.js');
 const massive = require('massive');
 const config = require('./config.json');
 const COMMANDS = require('./lib/commands.js');
 const USERS = require('./lib/users.js');
 const CHANNELS = require('./lib/channels.js');
+const DISCORD_NOTIFIER = require('./lib/discordNotifier.js');
 
 // db connection info(psql)
 const connectionInfo = {
@@ -80,5 +82,12 @@ massive(connectionInfo).then(db => {
       COMMANDS.processCommand(db, client, channel, userstate, message);
     };
   })
+
+  const discordClient = new discord.Client();
+  discordClient.on(`ready`, () => {
+    console.log(`I am ready!`);
+  });
+  discordClient.login(config["Discord Token"]);
+  DISCORD_NOTIFIER.startNotifier(discord, discordClient);
 
 });
