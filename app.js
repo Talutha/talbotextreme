@@ -23,6 +23,7 @@ const connectionInfo = {
 // connect to db
 massive(connectionInfo).then(db => {
 
+  /*
   // Automatically create DB Tables if they don't exist
   console.log("Ensuring Correct Tables Exist...");
   db.tableCreation.createCommandsTable()
@@ -41,6 +42,17 @@ massive(connectionInfo).then(db => {
           })
         })
     });
+  */
+
+  async function createTables() {
+    await db.tableCreation.createCommandsTable();
+    await db.tableCreation.createUserTable();
+    await db.tableCreation.createChannelSettings();
+    let newDB = await db.reload();
+    db = newDB;
+  }
+
+  createTables();
 
   var options = {
     options: {
