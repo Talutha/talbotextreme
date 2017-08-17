@@ -44,7 +44,7 @@ massive(connectionInfo).then(db => {
     });
   */
 
-  async function createTables() {
+  (async function createTables() {
 
     // These will run one after another, waiting for the previous to finish.
     // await db.tableCreation.createCommandsTable();
@@ -66,9 +66,7 @@ massive(connectionInfo).then(db => {
       console.log("Something has gone horribly wrong with database creation.");
       console.log(err);
     }
-  }
-
-  createTables();
+  })();
 
   var options = {
     options: {
