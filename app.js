@@ -45,11 +45,27 @@ massive(connectionInfo).then(db => {
   */
 
   async function createTables() {
-    await db.tableCreation.createCommandsTable();
-    await db.tableCreation.createUserTable();
-    await db.tableCreation.createChannelSettings();
-    let newDB = await db.reload();
-    db = newDB;
+
+    // These will run one after another, waiting for the previous to finish.
+    // await db.tableCreation.createCommandsTable();
+    // await db.tableCreation.createUserTable();
+    // await db.tableCreation.createChannelSettings();
+
+    // This will run all db creation at the same time then continue when all are finished.
+    console.log("Ensuring Correct Tables Exist...");
+    try {
+      await Promise.all([db.tableCreation.createCommandsTable(),
+                         db.tableCreation.createUserTable(),
+                         db.tableCreation.createChannelSettings()]);
+
+      let newDB = await db.reload();
+      db = newDB;
+      console.log("All Tables Verified.");
+
+    } catch (err) {
+      console.log("Something has gone horribly wrong with database creation.");
+      console.log(err);
+    }
   }
 
   createTables();
