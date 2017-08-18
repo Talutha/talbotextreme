@@ -51,7 +51,8 @@ massive(connectionInfo).then(db => {
     // await db.tableCreation.createUserTable();
     // await db.tableCreation.createChannelSettings();
 
-    // This will run all db creation at the same time then continue when all are finished.
+    // This will run all db creation at the same time then continue when all are
+    // finished.
     console.log("Ensuring Correct Tables Exist...");
     try {
       await Promise.all([db.tableCreation.createCommandsTable(),
