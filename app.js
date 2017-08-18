@@ -89,7 +89,7 @@ massive(connectionInfo).then(db => {
 
   client.on("connected", function (address, port) {
     CHANNELS.joinChannels(db, client);
-    USERS.getUserList(db);
+    // USERS.getUserList(db);
   })
 
   /*
