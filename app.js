@@ -7,7 +7,7 @@ const config = require('./config.json');
 const COMMANDS = require('./lib/commands.js');
 const USERS = require('./lib/users.js');
 const CHANNELS = require('./lib/channels.js');
-const DISCORD_NOTIFIER = require('./lib/discordNotifier.js');
+const DISCORD_NOTIFIER = require('./lib/discord/discordNotifier.js');
 
 // db connection info(psql)
 const connectionInfo = {
