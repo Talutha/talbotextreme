@@ -5,5 +5,8 @@ CREATE TABLE IF NOT EXISTS channel_settings (
     points_command VARCHAR,
     points_name VARCHAR,
     points_activated BOOLEAN,
+    points_offline_interval bigint,
+    points_online_interval bigint,
+    points_per_iteration bigint,
     joined BOOLEAN
 );
