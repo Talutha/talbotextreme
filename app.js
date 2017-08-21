@@ -19,8 +19,8 @@ var options = {
     reconnect: true
   },
   identity: {
-    username: config["Twitch Username"],
-    password: config["Twitch Oauth"]
+    username: config['Twitch Username'],
+    password: config['Twitch Oauth']
   },
   channels: ['#talbotextreme']
 };
@@ -28,6 +28,7 @@ var options = {
 var client = new tmi.client(options);
 
 (async function() {
+
   db = await DB.db;
 
   // These will run one after another, waiting for the previous to finish.
@@ -37,18 +38,20 @@ var client = new tmi.client(options);
 
   // This will run all db creation at the same time then continue when all are
   // finished.
-  console.log("Ensuring Correct Tables Exist...");
+  console.log('Ensuring Correct Tables Exist...');
   try {
-    await Promise.all([db.tableCreation.createCommandsTable(),
-                       db.tableCreation.createUserTable(),
-                       db.tableCreation.createChannelSettings()]);
+    await Promise.all([
+      db.tableCreation.createCommandsTable(),
+      db.tableCreation.createUserTable(),
+      db.tableCreation.createChannelSettings()
+    ]);
 
     let newDB = await db.reload();
     db = newDB;
-    console.log("All Tables Verified.");
+    console.log('All Tables Verified.');
 
   } catch (err) {
-    console.log("Something has gone horribly wrong with database creation.");
+    console.log('Something has gone horribly wrong with database creation.');
     console.log(err);
   }
 
@@ -56,10 +59,10 @@ var client = new tmi.client(options);
   client.connect();
 })();
 
-client.on("connected", function (address, port) {
+client.on('connected', function (address, port) {
   CHANNELS.joinChannels(db, client);
   // USERS.getUserList(db);
-})
+});
 
 /*
 client.on('connected', function (address, port) {
@@ -75,12 +78,12 @@ client.on('chat', function (channel, userstate, message, self) {
   // If message starts with '!' process it as a command
   if (message.charAt(0) === '!') {
     COMMANDS.processCommand(db, client, channel, userstate, message);
-  };
-})
+  }
+});
 
 const discordClient = new discord.Client();
-discordClient.on(`ready`, () => {
-  console.log(`I am ready!`);
+discordClient.on('ready', () => {
+  console.log('I am ready!');
 });
-discordClient.login(config["Discord Token"]);
+discordClient.login(config['Discord Token']);
 DISCORD_NOTIFIER.startNotifier(discord, discordClient);
