@@ -4,12 +4,11 @@ const tmi = require('tmi.js');
 const discord = require('discord.js');
 const config = require('./config.json');
 const COMMANDS = require('./lib/commands.js');
-const USERS = require('./lib/users.js');
 const CHANNELS = require('./lib/channels.js');
 const DISCORD_NOTIFIER = require('./lib/discord/discordNotifier.js');
 const DB = require('./lib/database.js');
 
-var db;
+global.db;
 
 var options = {
   options: {
@@ -44,7 +43,7 @@ console.log(
 
 (async function() {
 
-  db = await DB.db;
+  global.db = await DB.db;
 
   // These will run one after another, waiting for the previous to finish.
   // await db.tableCreation.createCommandsTable();
@@ -75,6 +74,7 @@ console.log(
 })();
 
 client.on('connected', function (address, port) {
+  console.log('Address: ' + address + ':' + port);
   CHANNELS.joinChannels(db, client);
   // USERS.getUserList(db);
 });
