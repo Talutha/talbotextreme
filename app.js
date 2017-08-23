@@ -38,7 +38,7 @@ console.log(
 + '    | | (_| | | |_/ / (_) | |_| |___>  <| |_| | |  __/ | | | | |  __/\n'
 + '    \\_/\\__,_|_\\____/ \\___/ \\__\\____/_/\\_\\\\__|_|  \\___|_| |_| |_|\\___|\n'
 + '\n'
-+ '                                            by @Talutha & @slm_shockz \n'                                                                    
++ '                                            by @Talutha & @slm_shockz \n'
 );
 
 (async function() {
@@ -97,8 +97,8 @@ client.on('chat', function (channel, userstate, message, self) {
 });
 
 const discordClient = new discord.Client();
-discordClient.on('ready', () => {
-  console.log('I am ready!');
-});
 discordClient.login(config['Discord Token']);
+discordClient.on('ready', () => {
+  console.log('Discord bot ready!');
+});
 DISCORD_NOTIFIER.startNotifier(discord, discordClient);
