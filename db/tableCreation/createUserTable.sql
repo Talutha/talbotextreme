@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS users (
     points bigint,
     channel VARCHAR,
     first_seen timestamp without time zone,
-    last_seen timestamp without time zone
+    last_seen timestamp without time zone,
+    updated timestamp without time zone
 );
