@@ -42,18 +42,20 @@ console.log(
 );
 
 (async function() {
-
-  global.db = await DB.db;
-
-  // These will run one after another, waiting for the previous to finish.
-  // await db.tableCreation.createCommandsTable();
-  // await db.tableCreation.createUserTable();
-  // await db.tableCreation.createChannelSettings();
-
-  // This will run all db creation at the same time then continue when all are
-  // finished.
-  console.log('Ensuring Correct Tables Exist...');
   try {
+
+    global.db = await DB.db;
+    let db = global.db;
+
+    // These will run one after another, waiting for the previous to finish.
+    // await db.tableCreation.createCommandsTable();
+    // await db.tableCreation.createUserTable();
+    // await db.tableCreation.createChannelSettings();
+
+    // This will run all db creation at the same time then continue when all are
+    // finished.
+    console.log('Ensuring Correct Tables Exist...');
+  
     await Promise.all([
       db.tableCreation.createCommandsTable(),
       db.tableCreation.createUserTable(),
@@ -64,13 +66,15 @@ console.log(
     db = newDB;
     console.log('All Tables Verified.');
 
+
+
+    // Connect the client to the server..
+    client.connect();
+
   } catch (err) {
     console.log('Something has gone horribly wrong with database creation.');
     console.log(err);
   }
-
-  // Connect the client to the server..
-  client.connect();
 })();
 
 client.on('connected', function (address, port) {
