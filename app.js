@@ -55,7 +55,7 @@ console.log(
     // This will run all db creation at the same time then continue when all are
     // finished.
     console.log('Ensuring Correct Tables Exist...');
-  
+
     await Promise.all([
       db.tableCreation.createCommandsTable(),
       db.tableCreation.createUserTable(),
@@ -69,7 +69,9 @@ console.log(
 
 
     // Connect the client to the server..
-    client.connect();
+    if (config['Enable Twitch Bot']) {
+      client.connect();
+    }
 
   } catch (err) {
     console.log('Something has gone horribly wrong with database creation.');
@@ -100,9 +102,11 @@ client.on('chat', function (channel, userstate, message, self) {
   }
 });
 
-const discordClient = new discord.Client();
-discordClient.login(config['Discord Token']);
-discordClient.on('ready', () => {
-  console.log('Discord bot ready!');
-});
-DISCORD_NOTIFIER.startNotifier(discord, discordClient);
+if (config['Enable Discord Bot']) {
+  const discordClient = new discord.Client();
+  discordClient.login(config['Discord Token']);
+  discordClient.on('ready', () => {
+    console.log('Discord bot ready!');
+  });
+  DISCORD_NOTIFIER.startNotifier(discord, discordClient);
+}

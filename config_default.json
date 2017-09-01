@@ -1,8 +1,10 @@
 {
+  "Enable Twitch Bot": true,
   "Twitch Username": "",
   "Twitch Oauth": "",
   "Twitch Client ID": "",
   "Twitch Channel": "",
+  "Enable Discord Bot": true,
   "Discord Token": "",
   "Discord Guild ID": "",
   "DB User": "",
