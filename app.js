@@ -4,6 +4,7 @@ const tmi = require('tmi.js');
 const discord = require('discord.js');
 const config = require('./config.json');
 const COMMANDS = require('./lib/commands.js');
+const USERS = require('./lib/users.js');
 const CHANNELS = require('./lib/channels.js');
 const DISCORD_NOTIFIER = require('./lib/discord/discordNotifier.js');
 const DB = require('./lib/database.js');
@@ -92,9 +93,12 @@ client.on('connected', function (address, port) {
 */
 
 // Process every chat message sent
-client.on('chat', function (channel, userstate, message, self) {
+client.on('chat', async function (channel, userstate, message, self) {
   // Don't listen to my own messages...
   if (self) return;
+
+  // always update users on chat
+  USERS.addUserToDB(db, channel, userstate);
 
   // If message starts with '!' process it as a command
   if (message.charAt(0) === '!') {
