@@ -104,7 +104,11 @@ describe('Chicken Dinner', () => {
         
         await chickenDinner.serve(channel, userstate, client, message);
         
-        expect(spy.called).to.be.true;
+        // this does not include the argument gameState because the spy
+        // shows chickenDinner pot as [Object] while the actual function
+        // passed shows the actual object, thus it does not match for some
+        // reason...
+        expect(spy.calledWith(channel, userstate, client, 100)).to.be.true;
       });
     
     it('should alert the chat if the game is on cooldown', async () => {
@@ -131,6 +135,22 @@ describe('Chicken Dinner', () => {
       
       expect(spy.called).to.be.true;
     });
+
+  });
+
+  describe('Game Preparation', () => {
+
+    it('should set the gameState to lobby');
+
+    it('should reset the pot to 0');
+
+    it('should add the player amount to the pot');
+
+    it('should add the player to the participant list');
+
+    it('should announce that a chicken dinner has started');
+
+    it('should start a timer to announce when lobby is halfway done');
 
   });
 });
