@@ -1,12 +1,11 @@
 'use strict';
 
 const tmi = require('tmi.js');
-const discord = require('discord.js');
 const config = require('./config.json');
 const COMMANDS = require('./lib/commands.js');
 const USERS = require('./lib/users.js');
 const CHANNELS = require('./lib/channels.js');
-const DISCORD_NOTIFIER = require('./lib/discord/discordNotifier.js');
+const DISCORD = require('./lib/discord/discordBot.js');
 const DB = require('./lib/database.js');
 
 global.db;
@@ -60,7 +59,8 @@ console.log(
     await Promise.all([
       db.tableCreation.createCommandsTable(),
       db.tableCreation.createUserTable(),
-      db.tableCreation.createChannelSettings()
+      db.tableCreation.createChannelSettings(),
+      db.tableCreation.createDiscordNotifiersTable()
     ]);
 
     let newDB = await db.reload();
@@ -107,10 +107,5 @@ client.on('chat', async function (channel, userstate, message, self) {
 });
 
 if (config['Enable Discord Bot']) {
-  const discordClient = new discord.Client();
-  discordClient.login(config['Discord Token']);
-  discordClient.on('ready', () => {
-    console.log('Discord bot ready!');
-  });
-  DISCORD_NOTIFIER.startNotifier(discord, discordClient);
+  DISCORD.setUpDiscordClient();
 }
