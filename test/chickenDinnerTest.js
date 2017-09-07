@@ -42,7 +42,6 @@ describe('Chicken Dinner', () => {
     gameState = channelObject['#testchannel'].chickenDinner;
     message = ['chickendinner', '100'];
     sandbox = sinon.sandbox.create();
-    sandbox.stub(DB, 'db').returns(null);
     sandbox.stub(TIMERS, 'showTimers').returns(channelObject);
   });
 
@@ -52,11 +51,14 @@ describe('Chicken Dinner', () => {
 
   describe('Player Sorting', () => {
 
+    beforeEach( function() {
+      sandbox.stub(DB, 'db').returns({});
+    });
     
     it('should return false if not enough points', async () => {
       
       sandbox.stub(POINTS, 'hasEnoughPoints').returns(false);
-      
+
       var served = await chickenDinner.serve(channel, userstate, client, message);
       
       expect(served).to.be.false;
@@ -100,12 +102,12 @@ describe('Chicken Dinner', () => {
     it('should prepare the game if state is available and user has enough points',
       async () => {
         
-        var spy = sandbox.spy(chickenDinner, 'prepare');
+        var stub = sandbox.stub(chickenDinner, 'prepare').returns(null);
         sandbox.stub(POINTS, 'hasEnoughPoints').returns(true);
         
         await chickenDinner.serve(channel, userstate, client, message);
         
-        expect(spy.calledWith(channel, userstate, client, 100, gameState)).to.be.true;
+        expect(stub.calledWith(channel, userstate, client, 100, gameState)).to.be.true;
       });
     
     it('should alert the chat if the game is on cooldown', async () => {
@@ -132,7 +134,7 @@ describe('Chicken Dinner', () => {
 
       await chickenDinner.serve(channel, userstate, client, message);
 
-      expect(stub.calledWith(userstate, expected, gameState)).to.be.true;
+      expect(stub.calledWith(channel, userstate, expected, gameState)).to.be.true;
     });
     
     it('should send player to lobby if gameState is lobby', async () => {
@@ -143,28 +145,32 @@ describe('Chicken Dinner', () => {
       
       await chickenDinner.serve(channel, userstate, client, message);
       
-      expect(stub.calledWith(userstate, 100, gameState)).to.be.true;
+      expect(stub.calledWith(channel, userstate, 100, gameState)).to.be.true;
     });
 
   });
 
   describe('Game Preparation', () => {
 
+    beforeEach( function() {
+      sandbox.stub(chickenDinner, 'changeState').returns(null);
+      sandbox.stub(chickenDinner, 'resetPot').returns(null);
+      sandbox.stub(chickenDinner, 'lobby').returns(null);
+    });
+
     it('should set the gameState to lobby', async () => {
-      var spy = sandbox.spy(chickenDinner, 'changeState');
 
       await chickenDinner.prepare(channel, userstate, client, 100, gameState);
 
-      expect(spy.calledWith(gameState)).to.be.true;
+      expect(chickenDinner.changeState.calledWith(gameState)).to.be.true;
     });
 
     it('should reset the pot to 0', async () => {
-      var spy = sandbox.spy(chickenDinner, 'resetPot');
       var amount = 100;
 
       await chickenDinner.prepare(channel, userstate, client, amount, gameState);
 
-      expect(spy.called).to.be.true;
+      expect(chickenDinner.resetPot.called).to.be.true;
     });
 
     it('should announce that a chicken dinner has started', async () => {
@@ -178,11 +184,12 @@ describe('Chicken Dinner', () => {
     });
 
     it('should send the player to the lobby', async () => {
-      var spy = sandbox.spy(chickenDinner, 'lobby');
+      let newState = null;
 
       await chickenDinner.prepare(channel, userstate, client, 100, gameState);
 
-      expect(spy.calledWith(userstate, 100, gameState)).to.be.true;
+      expect(chickenDinner.lobby.calledWith(channel, userstate, 100, newState))
+        .to.be.true;
     });
 
     it('should start a timer to announce when lobby is halfway done');
@@ -192,26 +199,22 @@ describe('Chicken Dinner', () => {
   describe('Game Lobby', () => {
 
     it('should add the player amount to the pot', async () => {
-      var expected = 100;
+      var stub = sandbox.stub(chickenDinner, 'addToPot').returns(null);
+      sandbox.stub(chickenDinner, 'addParticipant').returns(null);
 
-      var result = await chickenDinner.lobby(userstate, 100, gameState);
+      await chickenDinner.lobby(channel, userstate, 100, gameState);
 
-      expect(result.pot.total).to.equal(expected);
-    });
-
-    it('should add all points to the pot', async () => {
-      gameState.pot.total = 100;
-      var expected = 250;
-      var addThis = 150;
-
-      var result = await chickenDinner.lobby(userstate, addThis, gameState);
-
-      expect(result.pot.total).to.equal(expected);
+      expect(stub.called).to.equal(true);
     });
     
-    it('should add the player to the participant list');
+    it('should add the player to the participant list', async () => {
+      var stub = sandbox.stub(chickenDinner, 'addParticipant').returns(null);
+      sandbox.stub(chickenDinner, 'addToPot').returns(null);
 
-    it('should remove points from user total');
+      await chickenDinner.lobby(channel, userstate, 100, gameState);
+
+      expect(stub.calledWith(userstate['user-id'], gameState)).to.be.true;
+    });
 
   });
 
@@ -253,6 +256,24 @@ describe('Chicken Dinner', () => {
 
       expect(result.pot.total).to.equal(expected);
     });
+
+  });
+
+  describe('Add to Pot', () => {
+
+    it('should remove points from users total', async () => {
+      var stub = sandbox.stub(POINTS,'modifyPoints').returns(null);
+      sandbox.stub(DB, 'db').returns({});
+      var amount = 100;
+      var db = {};
+      var userID = userstate['user-id'];
+
+      await chickenDinner.addToPot(channel, userstate, amount, gameState);
+
+      expect(stub.calledWith(db, channel, userID, amount)).to.be.true;
+    });
+
+    it('should add points to total');
 
   });
     
