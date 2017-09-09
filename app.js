@@ -60,7 +60,7 @@ console.log(
       db.tableCreation.createCommandsTable(),
       db.tableCreation.createUserTable(),
       db.tableCreation.createChannelSettings(),
-      db.tableCreation.createDiscordNotifiersTable()
+      db.tableCreation.createDiscordAnnouncersTable()
     ]);
 
     let newDB = await db.reload();
