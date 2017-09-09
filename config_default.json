@@ -6,6 +6,7 @@
   "Twitch Channel": "",
   "Enable Discord Bot": true,
   "Discord Token": "",
+  "Discord Super User Role": "",
   "Discord Guild ID": "",
   "DB User": "",
   "DB Password": "",
