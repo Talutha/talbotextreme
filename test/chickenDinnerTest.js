@@ -602,23 +602,153 @@ describe('Chicken Dinner', () => {
 
   });
 
-  describe('Current Fight', function() {
+  describe('Fight Routing', function() {
 
-    it('should call fight outcome for 4+ participants');
+    beforeEach(function () {
+      sandbox.stub(chickenDinner, 'determineOutcome').returns({
+        winner: 11111,
+        loser: 22222
+      });
+      sandbox.stub(chickenDinner, 'giveReward').returns(null);
+    });
 
-    it('should NOT call for reward if 4+ participants');
+    it('should call fight outcome for 4+ participants', () => {
+      gameState.participants = [1, 2, 3, 4];
 
-    it('should call itself after set time if 4+ participants');
+      chickenDinner.fightRouting(channel, client, gameState);
 
-    it('should call fight outcome for 3 participants');
+      expect(chickenDinner.determineOutcome.calledWith(
+        channel, client, gameState
+      )).to.be.true;
+    });
 
-    it('should call for reward once if 3 participants');
+    it('should NOT call for reward if 4+ participants', () => {
+      gameState.participants = [1, 2, 3, 4];
+      
+      chickenDinner.fightRouting(channel, client, gameState);
 
-    it('should call fight outcome for 2 participants');
+      expect(chickenDinner.giveReward.called).to.be.false;
+    });
 
-    it('should call itself after set time if 3 participants');
+    it('should call itself after set time if 4+ participants', () => {
+      sandbox.spy(chickenDinner, 'fightRouting');
+      gameState.participants = [1, 2, 3, 4];
+      var clock = sinon.useFakeTimers();
 
-    it('should call for reward twice if 2 participants');
+      chickenDinner.fightRouting(channel, client, gameState); 
+      clock.tick(120000);
+
+      // We have to check if its called twice, once for the original call
+      // and once for the timer.
+      expect(chickenDinner.fightRouting.calledTwice).to.be.true;
+      clock.restore();
+    });
+
+    it('should call fight outcome for 3 participants', () => {
+      gameState.participants = [1, 2, 3];
+      
+      chickenDinner.fightRouting(channel, client, gameState);
+
+      expect(chickenDinner.determineOutcome.calledWith(
+        channel, client, gameState
+      )).to.be.true;
+    });
+
+    it('should call for reward once for loser if 3 participants', () => {
+      var expected = 22222;
+      gameState.participants = [1, 2, 3];
+
+      chickenDinner.fightRouting(channel, client, gameState);
+
+      expect(chickenDinner.giveReward.calledWith(
+        channel, client, gameState, expected, 'third')).to.be.true;
+    });
+
+    it('should call itself after set time if 3 participants', () => {
+      sandbox.spy(chickenDinner, 'fightRouting');
+      gameState.participants = [1, 2, 3, 4];
+      var clock = sinon.useFakeTimers();
+
+      chickenDinner.fightRouting(channel, client, gameState); 
+      clock.tick(120000);
+
+      // We have to check if its called twice, once for the original call
+      // and once for the timer.
+      expect(chickenDinner.fightRouting.calledTwice).to.be.true;
+      clock.restore();
+    });
+
+    it('should call fight outcome for 2 participants', () => {
+      gameState.participants = [1, 2];
+      
+      chickenDinner.fightRouting(channel, client, gameState);
+
+      expect(chickenDinner.determineOutcome.calledWith(
+        channel, client, gameState
+      )).to.be.true;
+    });
+
+    it('should call for reward twice for winner and loser if 2 participants', () => {
+      gameState.participants = [1, 2];
+
+      chickenDinner.fightRouting(channel, client, gameState);
+
+      expect(chickenDinner.giveReward.calledTwice).to.be.true;
+    });
+
+  });
+
+  describe('Determine Outcome', function() {
+
+    it('Should return the user ID');
+
+  });
+
+  describe('Give Reward', function () {
+
+    beforeEach(function() {
+      gameState.pot.first = 50;
+      gameState.pot.second = 30;
+      gameState.pot.third = 20;
+
+      sandbox.stub(POINTS, 'modifyPoints').returns(null);
+    });
+
+    it('Should give correct amount for third place', async () => {
+      var outcome = 12345;
+      var place = 'third';
+      var db = {};
+      var amount = 20;
+
+      await chickenDinner.giveReward(channel, client, gameState, outcome, place);
+     
+      expect(POINTS.modifyPoints.calledWith(db, channel, outcome, amount))
+        .to.be.true;
+    });
+
+    it('Should give correct amount for second place', async () => {
+      var outcome = 12345;
+      var place = 'second';
+      var db = {};
+      var amount = 30;
+
+      await chickenDinner.giveReward(channel, client, gameState, outcome, place);
+
+      expect(POINTS.modifyPoints.calledWith(db, channel, outcome, amount))
+        .to.be.true;
+    });
+
+    it('Should give correct amount for first place', async () => {
+      var outcome = 12345;
+      var place = 'first';
+      var db = {};
+      var amount = 50;
+
+      await chickenDinner.giveReward(channel, client, gameState, outcome, place);
+
+      expect(POINTS.modifyPoints.calledWith(db, channel, outcome, amount))
+        .to.be.true;
+    });
 
   });
     
