@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS discord_announcers (
     discord_channel_id BIGINT,
     twitch_channel_name VARCHAR,
     announce_sent BOOLEAN,
-    last_announce TIMESTAMP WITHOUT TIME ZONE
+    on_cooldown BOOLEAN,
+    offline_since TIMESTAMP WITHOUT TIME ZONE
 );

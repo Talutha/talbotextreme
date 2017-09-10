@@ -3,11 +3,10 @@
   "Twitch Username": "",
   "Twitch Oauth": "",
   "Twitch Client ID": "",
-  "Twitch Channel": "",
   "Enable Discord Bot": true,
   "Discord Token": "",
   "Discord Super User Role": "",
-  "Discord Guild ID": "",
+  "Discord Announcer Cooldown": 15,
   "DB User": "",
   "DB Password": "",
   "Database" : ""
