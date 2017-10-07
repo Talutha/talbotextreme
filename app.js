@@ -21,7 +21,7 @@ var options = {
     username: config['Twitch Username'],
     password: config['Twitch Oauth']
   },
-  channels: ['#hyperbets']
+  channels: ['#talbotextreme']
 };
 
 var client = new tmi.client(options);

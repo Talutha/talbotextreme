@@ -9,6 +9,7 @@ var POINTS = require('../lib/points.js');
 var DB = require('../lib/database.js');
 var TIMERS = require('../lib/timers.js');
 var USERS = require('../lib/users.js');
+var CDSTRINGS = require('../lib/cdStrings.js');
 
 describe('Chicken Dinner', () => {
 
@@ -610,32 +611,35 @@ describe('Chicken Dinner', () => {
         loser: 22222
       });
       sandbox.stub(chickenDinner, 'giveReward').returns(null);
+      sandbox.stub(POINTS, 'getPointsName').returns('Points');
+      sandbox.stub(client, 'say').returns(null);
+      sandbox.stub(USERS, 'toDisplayName').returns(null);
     });
 
-    it('should call fight outcome for 4+ participants', () => {
+    it('should call fight outcome for 4+ participants', async () => {
       gameState.participants = [1, 2, 3, 4];
 
-      chickenDinner.fightRouting(channel, client, gameState);
+      await chickenDinner.fightRouting(channel, client, gameState);
 
       expect(chickenDinner.determineOutcome.calledWith(
         channel, client, gameState
       )).to.be.true;
     });
 
-    it('should NOT call for reward if 4+ participants', () => {
+    it('should NOT call for reward if 4+ participants', async () => {
       gameState.participants = [1, 2, 3, 4];
       
-      chickenDinner.fightRouting(channel, client, gameState);
+      await chickenDinner.fightRouting(channel, client, gameState);
 
       expect(chickenDinner.giveReward.called).to.be.false;
     });
 
-    it('should call itself after set time if 4+ participants', () => {
+    it('should call itself after set time if 4+ participants', async () => {
       sandbox.spy(chickenDinner, 'fightRouting');
       gameState.participants = [1, 2, 3, 4];
       var clock = sinon.useFakeTimers();
 
-      chickenDinner.fightRouting(channel, client, gameState); 
+      await chickenDinner.fightRouting(channel, client, gameState); 
       clock.tick(120000);
 
       // We have to check if its called twice, once for the original call
@@ -644,32 +648,32 @@ describe('Chicken Dinner', () => {
       clock.restore();
     });
 
-    it('should call fight outcome for 3 participants', () => {
+    it('should call fight outcome for 3 participants', async () => {
       gameState.participants = [1, 2, 3];
       
-      chickenDinner.fightRouting(channel, client, gameState);
+      await chickenDinner.fightRouting(channel, client, gameState);
 
       expect(chickenDinner.determineOutcome.calledWith(
         channel, client, gameState
       )).to.be.true;
     });
 
-    it('should call for reward once for loser if 3 participants', () => {
+    it('should call for reward once for loser if 3 participants', async () => {
       var expected = 22222;
       gameState.participants = [1, 2, 3];
 
-      chickenDinner.fightRouting(channel, client, gameState);
+      await chickenDinner.fightRouting(channel, client, gameState);
 
       expect(chickenDinner.giveReward.calledWith(
         channel, client, gameState, expected, 'third')).to.be.true;
     });
 
-    it('should call itself after set time if 3 participants', () => {
+    it('should call itself after set time if 3 participants', async () => {
       sandbox.spy(chickenDinner, 'fightRouting');
       gameState.participants = [1, 2, 3, 4];
       var clock = sinon.useFakeTimers();
 
-      chickenDinner.fightRouting(channel, client, gameState); 
+      await chickenDinner.fightRouting(channel, client, gameState); 
       clock.tick(120000);
 
       // We have to check if its called twice, once for the original call
@@ -678,20 +682,20 @@ describe('Chicken Dinner', () => {
       clock.restore();
     });
 
-    it('should call fight outcome for 2 participants', () => {
+    it('should call fight outcome for 2 participants', async () => {
       gameState.participants = [1, 2];
       
-      chickenDinner.fightRouting(channel, client, gameState);
+      await chickenDinner.fightRouting(channel, client, gameState);
 
       expect(chickenDinner.determineOutcome.calledWith(
         channel, client, gameState
       )).to.be.true;
     });
 
-    it('should call for reward twice for winner and loser if 2 participants', () => {
+    it('should call for reward twice for winner and loser if 2 participants', async () => {
       gameState.participants = [1, 2];
 
-      chickenDinner.fightRouting(channel, client, gameState);
+      await chickenDinner.fightRouting(channel, client, gameState);
 
       expect(chickenDinner.giveReward.calledTwice).to.be.true;
     });
@@ -700,7 +704,242 @@ describe('Chicken Dinner', () => {
 
   describe('Determine Outcome', function() {
 
-    it('Should return the user ID');
+    beforeEach(function() {
+      gameState.participants = [1, 2];
+      sandbox.spy(chickenDinner, 'removeLoser');
+      sandbox.stub(chickenDinner, 'randArr').returns(1);
+      sandbox.stub(chickenDinner, 'soloEncounter').returns(null);
+      sandbox.stub(CDSTRINGS, 'weapons').value(['M24']);
+      sandbox.stub(CDSTRINGS, 'locations').value(['Hospital']);
+      sandbox.stub(CDSTRINGS, 'solo').value(['Solo Scenario']);
+      sandbox.stub(CDSTRINGS, 'duo').value(['Duo Scenario']);
+      sandbox.stub(chickenDinner, 'parseOutcome').returns(null);
+    });
+
+    it('should determine if solo encounter or not', () => {
+      chickenDinner.determineOutcome(channel, client, gameState);
+
+      expect(chickenDinner.soloEncounter.called).to.be.true;
+    });
+
+    it('should pick a random person for loser', () => {
+      let expected = 1;
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+      
+      expect(chickenDinner.randArr.calledWith(gameState.participants)).to.be.true;
+    });
+
+    it('should pick a different person for winner', () => {
+      gameState.participants = [1, 2];
+      let expected = 2;
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+      
+      expect(chickenDinner.randArr.calledWith(gameState.participants)).to.be.true;
+    });
+
+    it('should remove loser from participant array', () => {
+      gameState.participants = [1];
+      let loser = 1;
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+
+      expect(chickenDinner.removeLoser.calledWith(loser, gameState))
+        .to.be.true;
+    });
+
+    it('should pick a random weapon', () => {
+      let weaponList = ['M24'];
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+
+      expect(chickenDinner.randArr.calledWith(weaponList)).to.be.true;
+    });
+
+    it('should pick a random location', () => {
+      let locationList = ['Hospital'];
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+
+      expect(chickenDinner.randArr.calledWith(locationList)).to.be.true;
+    });
+
+    it('should return a winner/loser object with IDs', async () => {
+      var expected = { winner: 1, loser: 1};
+
+      var result = await chickenDinner.determineOutcome(channel, client, gameState);
+
+      expect(result).to.deep.equal(expected);
+    });
+
+    it('should get solo scenario if solo encounter is true', () => {
+      chickenDinner.soloEncounter.returns(true);
+      
+      var scenario = ['Solo Scenario'];
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+      
+      expect(chickenDinner.randArr.calledWith(scenario)).to.be.true;
+    });
+
+    it('should NOT get solo scenario if solo encounter is true', () => {
+      chickenDinner.soloEncounter.returns(true);
+      var expected = ['Duo Scenario'];
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+
+      expect(chickenDinner.randArr.neverCalledWith(expected)).to.be.true;
+    });
+
+    it('should get duo encounter if solo encounter is false', () => {
+      chickenDinner.soloEncounter.returns(false);
+
+      var scenario = ['Duo Scenario'];
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+
+      expect(chickenDinner.randArr.calledWith(scenario)).to.be.true;
+    });
+
+    it('should NOT get solo encounter if solo encounter is false', () => {
+      chickenDinner.soloEncounter.returns(false);
+      var expected = ['Solo Scenario'];
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+
+      expect(chickenDinner.randArr.neverCalledWith(expected)).to.be.true;
+    });
+
+    it('should send information to parse outcome', () => {
+      let winner = 1;
+      let loser = 1;
+      let weapon = 1;
+      let location = 1;
+      let scenario = 1;
+
+      chickenDinner.determineOutcome(channel, client, gameState);
+      
+      expect(chickenDinner.parseOutcome.calledWith(
+        channel, client, loser, winner, weapon, location, scenario)).to.be.true;
+    });
+
+  });
+
+  describe('Parse Outcome', function() {
+
+    beforeEach(function() {
+      sandbox.stub(USERS, 'toDisplayName').returns('myName!');
+      sandbox.stub(client, 'say').returns(null);
+    });
+
+    it('should get loser display name based on ID', async () => {
+      var loser = 11111;
+      var winner = 22222;
+      var weapon = 'M24';
+      var location = 'Hospital';
+      var scenario = 'Duo Scenario';
+
+      await chickenDinner.parseOutcome(
+        channel, client, loser, winner, weapon, location, scenario
+      );
+
+      expect(USERS.toDisplayName.calledWith(loser)).to.be.true;
+    });
+
+    it('should get winner display name based on ID', async () => {
+      var loser = 11111;
+      var winner = 22222;
+      var weapon = 'M24';
+      var location = 'Hospital';
+      var scenario = 'Duo Scenario';
+      
+      await chickenDinner.parseOutcome(
+        channel, client, loser, winner, weapon, location, scenario
+      );
+      
+      expect(USERS.toDisplayName.calledWith(winner)).to.be.true;
+    });
+    
+    it('should replace @L with loserName in scenario', async () => {
+      var loser = 11111;
+      var winner = 22222;
+      var weapon = 'M24';
+      var location = 'Hospital';
+      var scenario = '@L @L @L';
+      var parsedScenario = '11111 11111 11111';
+      USERS.toDisplayName.returns(loser);
+
+      await chickenDinner.parseOutcome(
+        channel, client, loser, winner, weapon, location, scenario
+      );
+
+      expect(client.say.calledWith(channel, parsedScenario)).to.be.true;
+    });
+
+
+    it('should replace @W with winnerName in scenario', async () => {
+      var loser = 11111;
+      var winner = 22222;
+      var weapon = 'M24';
+      var location = 'Hospital';
+      var scenario = '@W @W @W';
+      var parsedScenario = '22222 22222 22222';
+      USERS.toDisplayName.returns(winner);
+
+      await chickenDinner.parseOutcome(
+        channel, client, loser, winner, weapon, location, scenario
+      );
+
+      expect(client.say.calledWith(channel, parsedScenario)).to.be.true;
+    });
+
+    it('should replace @G with weapon in scenario', async () => {
+      var loser = 11111;
+      var winner = 22222;
+      var weapon = 'M24';
+      var location = 'Hospital';
+      var scenario = '@W @W @W';
+      var parsedScenario = 'M24 M24 M24';
+      USERS.toDisplayName.returns(weapon);
+
+      await chickenDinner.parseOutcome(
+        channel, client, loser, winner, weapon, location, scenario
+      );
+
+      expect(client.say.calledWith(channel, parsedScenario)).to.be.true;
+    });
+
+    it('should replace @L with location in scenario', async () => {
+      var loser = 11111;
+      var winner = 22222;
+      var weapon = 'M24';
+      var location = 'Hospital';
+      var scenario = '@W @W @W';
+      var parsedScenario = 'Hospital Hospital Hospital';
+      USERS.toDisplayName.returns(location);
+
+      await chickenDinner.parseOutcome(
+        channel, client, loser, winner, weapon, location, scenario
+      );
+
+      expect(client.say.calledWith(channel, parsedScenario)).to.be.true;
+    });
+    
+    it('should announce the scenario to chat', async () => {
+      var loser = 11111;
+      var winner = 22222;
+      var weapon = 'M24';
+      var location = 'Hospital';
+      var scenario = 'Duo Scenario';
+      var parsedScenario = 'Duo Scenario';
+
+      await chickenDinner.parseOutcome(
+        channel, client, loser, winner, weapon, location, scenario
+      );
+
+      expect(client.say.calledWith(channel, parsedScenario)).to.be.true;
+    });
 
   });
 
@@ -714,7 +953,7 @@ describe('Chicken Dinner', () => {
       sandbox.stub(POINTS, 'modifyPoints').returns(null);
     });
 
-    it('Should give correct amount for third place', async () => {
+    it('should give correct amount for third place', async () => {
       var outcome = 12345;
       var place = 'third';
       var db = {};
@@ -726,7 +965,7 @@ describe('Chicken Dinner', () => {
         .to.be.true;
     });
 
-    it('Should give correct amount for second place', async () => {
+    it('should give correct amount for second place', async () => {
       var outcome = 12345;
       var place = 'second';
       var db = {};
@@ -738,7 +977,7 @@ describe('Chicken Dinner', () => {
         .to.be.true;
     });
 
-    it('Should give correct amount for first place', async () => {
+    it('should give correct amount for first place', async () => {
       var outcome = 12345;
       var place = 'first';
       var db = {};
@@ -748,6 +987,39 @@ describe('Chicken Dinner', () => {
 
       expect(POINTS.modifyPoints.calledWith(db, channel, outcome, amount))
         .to.be.true;
+    });
+
+  });
+
+  describe('Random Array', function() {
+
+    it('should return a random element from given array', () => {
+      sandbox.stub(Math, 'random').returns(.1);
+      var arr = [1, 2, 3 , 4];
+
+      var result = chickenDinner.randArr(arr);
+
+      expect(result).to.equal(1);
+    });
+
+  });
+
+  describe('Solo Encounter', function() {
+
+    it('should return true if number is 20 or less', () => {
+      sandbox.stub(Math, 'random').returns(.2);
+
+      var result = chickenDinner.soloEncounter();
+
+      expect(result).to.be.true;
+    });
+
+    it('should return false if number is 21 or more', () => {
+      sandbox.stub(Math, 'random').returns(.21);
+
+      var result = chickenDinner.soloEncounter();
+
+      expect(result).to.be.false;
     });
 
   });
