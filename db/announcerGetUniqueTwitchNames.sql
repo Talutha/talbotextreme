@@ -1,0 +1,3 @@
+SELECT DISTINCT ON (twitch_channel_name)
+twitch_channel_name
+FROM discord_announcers
