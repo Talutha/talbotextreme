@@ -58,7 +58,7 @@ describe('Chicken Dinner', () => {
     
     it('should return false if not enough points', async () => {
       
-      sandbox.stub(POINTS, 'hasEnoughPoints').returns(false);
+      sandbox.stub(userstate, 'hasEnoughPoints').returns(false);
 
       var served = await chickenDinner.serve(channel, userstate, client, message);
       
